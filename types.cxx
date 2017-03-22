@@ -1,3 +1,7 @@
+//
+// Joel Rorseth
+//
+
 //------------------------------------------------------------------------------
 //
 // This file contains the definitions for the member functions of the types.
