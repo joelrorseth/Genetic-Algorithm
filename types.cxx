@@ -45,13 +45,13 @@ namespace cs340
     size_t const time_max, random_generator& gen)
   {
     // 1. Create an object of type runtime_matrix with t tasks and m machines.
+	runtime_matrix matrix{t, m};	
 
-    /* TODO: WRITE CODE HERE */
 
     // 2. Create a uniform_int_distribution that samples size_t's
     // from the range [0, time_max].
 
-    /* TODO: WRITE CODE HERE */
+	uniform_int_distribution<> dist{0,std::chrono::time_point::max};
 
     // 3. Write a nested for loop to fill the matrix with random
     // values. Use the distribution object (step 2) and the random 
