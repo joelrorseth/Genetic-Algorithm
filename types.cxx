@@ -49,6 +49,7 @@ namespace cs340
     size_t const time_max, random_generator& gen)
   {
     // 1. Create an object of type runtime_matrix with t tasks and m machines.
+    // Here, elements_ is initialized with size, so is t, m, tasks_, machines_
 	runtime_matrix matrix{t, m};	
 
 
@@ -66,11 +67,15 @@ namespace cs340
     //       Use two for loops (one nested inside the other) to
     //       populate these values.
 
-    /* TODO: WRITE CODE HERE */
+    // TODO: Properly access elements_ property of declared matrix object
+    for (int i=0; i < t; ++i) {
+        for (int j=0; j < m; ++j) {
+            elements_.push_back(RAND);
+        }
+    }
 
     // 4. Return the matrix.
-
-    /* TODO: WRITE CODE HERE */
+    return matrix;
   }
 
   // We compute the score of each schedule via it's makespan.  The
@@ -88,20 +93,22 @@ namespace cs340
     //
     // REQUIREMENT: Do NOT use .size() to determine if data_ is empty!
 
-    /* TODO: WRITE CODE HERE */
+    if ( tasks() == 0 )
+        return 0;
 
     // 2. Check if we already have a cached score. If so,
     // return the score we've cached. (See the class declaration
     // in types.hxx.)
 
-    /* TODO: WRITE CODE HERE */
+    if (has_cache_)
+        return cached_score_;
 
     // 3. We need to compute the score. First, create an object
     // of type std::multimap<std::size_t, std::size_t>, which
     // will map machines to the tasks that will run on it (as dictated
     // by the schedule). Call this variable machine_schedule.
 
-    /* TODO: WRITE CODE HERE */
+    std::multimap<std::size_t, std::size_t> machine_schedule;
 
     // Populate the multimap with a mutable lambda and for_each.
     for_each(
@@ -120,7 +127,7 @@ namespace cs340
     // std::numeric_limits<std::size_t>::min(), which is the smallest
     // value that can be stored in a size_t.
 
-    /* TODO: WRITE CODE HERE */
+    auto total_runtime = std::numeric_limits<std::size_t>::min();
 
     for (size_t m = 0; m < matrix.machines(); ++m) 
     {
