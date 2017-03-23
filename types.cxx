@@ -49,6 +49,7 @@ namespace cs340
     size_t const time_max, random_generator& gen)
   {
     // 1. Create an object of type runtime_matrix with t tasks and m machines.
+    // Here, elements_ is initialized with size, so is t, m, tasks_, machines_
 	runtime_matrix matrix{t, m};	
 
 
@@ -66,11 +67,15 @@ namespace cs340
     //       Use two for loops (one nested inside the other) to
     //       populate these values.
 
-    /* TODO: WRITE CODE HERE */
+    // TODO: Properly access elements_ property of declared matrix object
+    for (int i=0; i < t; ++i) {
+        for (int j=0; j < m; ++j) {
+            elements_.push_back(RAND);
+        }
+    }
 
     // 4. Return the matrix.
-
-    /* TODO: WRITE CODE HERE */
+    return matrix;
   }
 
   // We compute the score of each schedule via it's makespan.  The
@@ -88,20 +93,22 @@ namespace cs340
     //
     // REQUIREMENT: Do NOT use .size() to determine if data_ is empty!
 
-    /* TODO: WRITE CODE HERE */
+    if ( tasks() == 0 )
+        return 0;
 
     // 2. Check if we already have a cached score. If so,
     // return the score we've cached. (See the class declaration
     // in types.hxx.)
 
-    /* TODO: WRITE CODE HERE */
+    if (has_cache_)
+        return cached_score_;
 
     // 3. We need to compute the score. First, create an object
     // of type std::multimap<std::size_t, std::size_t>, which
     // will map machines to the tasks that will run on it (as dictated
     // by the schedule). Call this variable machine_schedule.
 
-    /* TODO: WRITE CODE HERE */
+    std::multimap<std::size_t, std::size_t> machine_schedule;
 
     // Populate the multimap with a mutable lambda and for_each.
     for_each(
@@ -120,39 +127,54 @@ namespace cs340
     // std::numeric_limits<std::size_t>::min(), which is the smallest
     // value that can be stored in a size_t.
 
-    /* TODO: WRITE CODE HERE */
+    auto total_runtime = std::numeric_limits<std::size_t>::min();
 
     for (size_t m = 0; m < matrix.machines(); ++m) 
     {
-      // 5. Find each task assigned to the machine by using
-      // machine_schedule's .equal_range() member function. Pass
-      // in m as the parameter.
+        // 5. Find each task assigned to the machine by using
+        // machine_schedule's .equal_range() member function. Pass
+        // in m as the parameter.
 
-      /* TODO: WRITE CODE HERE */
+        // Find all pairs with machine m
+        // Returns a std::pair<iterator, iterator> with range of found elements
+        auto range = machine_schedule.equal_range(m);
 
-      // 6. Using std::accumulate along with the range returned
-      // from the call to equal_range, compute the total run time
-      // for this machine. Use a lambda, capturing the matrix by
-      // reference, to compute the sum.
-      //
-      // HINTS:
-      //   *) The type of value you are accumulating is size_t.
-      //   *) Notice that the lambda's arguments don't modify 
-      //      anything so they should be const&.
-      //   *) You want to add the accumulated value to the next
-      //      value. The value being accumulated is accessible 
-      //      via matrix's function call operator which has 
-      //      two arguments, m(i,j). Refer to the definition
-      //      of RT[i,j] in types.hxx to pass the correct values
-      //      to m(i,j).
+        // 6. Using std::accumulate along with the range returned
+        // from the call to equal_range, compute the total run time
+        // for this machine. Use a lambda, capturing the matrix by
+        // reference, to compute the sum.
+        //
+        // HINTS:
+        //   *) The type of value you are accumulating is size_t.
+        //   *) Notice that the lambda's arguments don't modify 
+        //      anything so they should be const&.
+        //   *) You want to add the accumulated value to the next
+        //      value. The value being accumulated is accessible 
+        //      via matrix's function call operator which has 
+        //      two arguments, m(i,j). Refer to the definition
+        //      of RT[i,j] in types.hxx to pass the correct values
+        //      to m(i,j).
 
-      /* TODO: WRITE CODE HERE */
 
-      // 7. Using std::max, update the total_runtime variable declared
-      // outside of the loop.
+        // data_ is a list of machines
+        // There are task_ number of machines
+        // machine_schedule contains <machine, task> pairs
 
-      /* TODO: WRITE CODE HERE */
+        total_runtime = std::accumulate(range.first, range.second, 0,
+            [&matrix](const std::size_t & a, const std::size_t & b) -> std::size_t {
+
+                // Not sure if this is correct
+                return a + matrix(b.second, b.first);
+        });
+
+        // 7. Using std::max, update the total_runtime variable declared
+        // outside of the loop.
+        
+        // TODO: Not enough detail given, needs to be fixed
+        total_runtime = std::max(total_runtime, ______);
     }
+
+
 
     // 8. Now compute the cached score by using the following
     // formula:
@@ -162,11 +184,11 @@ namespace cs340
     // Also, set the has_cache_ flag to true, so we avoid having
     // to recompute this value the next time we need it.
 
-    /* TODO: WRITE CODE HERE */
+    cached_score_ = 1 / (total_runtime + 1) * 1000;
+
 
     // 9. Finally, return the cached score you computed.
-
-    /* TODO: WRITE CODE HERE */
+    return cached_score_;
   }
 }
 
