@@ -13,7 +13,8 @@
 // without introducing data races and other nasty surprises.
 //
 //------------------------------------------------------------------------------
-//TODO: Dalyn Stephens
+
+
 
 #include "ga.hxx"
 #include "types.hxx"
@@ -39,7 +40,10 @@ namespace cs340
     {
       explicit schedule_compare(runtime_matrix const& m)
         : matrix_{m}
-      { }
+      {
+        //if ()
+
+      }
 
       // Write a function call operator overload that takes in two
       // const lvalue-references to schedule objects. The operator should
@@ -61,15 +65,20 @@ namespace cs340
     {
       // 1. Create a std::vector of schedules, and use the .reserve()
       // member function to reserve space for pool_size schedules.
+      //***DONE***
 
-      /* TODO: WRITE CODE HERE */
+      std::vector<size_t> scheduleVector ();
+      scheduleVector.reserve(pool_size);
 
       // 2. Create a std::uniform_int_distribution to sample from. The
       // resulting objects should be of type size_t, and should fall
       // in the range [0, matrix.machines() - 1]. NOTE: This is an
       // INCLUSIVE range. <-- TAKE THIS INTO ACCOUNT!
+      //***DONE***
 
-      /* TODO: WRITE CODE HERE */
+      //unsigned seed_ = std::chrono::system_clock::now().time_since_epoch().count();
+      //std::mt19937_64 ranGen(seed_);
+      std::uniform_int_distribution<size_t> distribution_(0, (matrix.machines() - 1));
 
       // 3. Using std::generate_n, fill the vector you created
       // with randomly generated schedules. Use a lambda
@@ -79,18 +88,27 @@ namespace cs340
       // to fill the schedule with random data sampled from your
       // int distribution. (Remember to capture dist, gen, and matrix
       // by reference --not by value.)
+      //***DONE***
 
-      /* TODO: WRITE CODE HERE */
+      std::vector::iterator first = scheduleVector.begin();
+      std::generate_n (first, pool_size,
+                       [&distribution_, &gen, &matrix]{
+                           for (int i = 0; i < matrix.tasks(); i++){
+                             schedule(matrix.tasks()).set_task_assignment(i, gen);
+                           }
+                        });
 
       // 4. Sort your randomly generated pool of schedules. Use
       // std::stable_sort, passing in an object of type
       // schedule_compare as the custom comparison operator.
+      //***DONE***
 
-      /* TODO: WRITE CODE HERE */
+      std::stable_sort(scheduleVector.begin(), scheduleVector.end(), schedule_compare);
 
       // 5. Return the pool of schedules.
+      //***DONE***
 
-      /* TODO: WRITE CODE HERE */
+      return scheduleVector;
     }
 
     // Crossing two schedules over involves selecting a random spot
