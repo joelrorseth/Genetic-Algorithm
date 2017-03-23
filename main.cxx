@@ -1,3 +1,4 @@
+//have you checked on the children
 //------------------------------------------------------------------------------
 //
 // This program runs a genetic algorithm for computing task/machine
