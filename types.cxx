@@ -16,6 +16,7 @@
 #include <cmath>
 #include <iterator>
 #include <iostream>
+#include <TestStuff>
 
 using namespace std;
 
