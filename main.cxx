@@ -33,6 +33,10 @@ int main(int argc, char* argv[])
   //       how it simplifies processing command line arguments.
 
   /* TODO: WRITE CODE HERE */
+  cs340::program_options args;
+  args = program_options::program_options(argc, argv[]);
+  //program_options::program_options(argc, argv[]);
+  //program_options(argc, argv[]);
 
   // 2. Set up the random number generator. Create an object of type
   // std::seed_seq. Pass in as parameters an iterator pointing to the
@@ -47,6 +51,13 @@ int main(int argc, char* argv[])
   // TODO: Read about random numbers (e.g., <random>) in the course textbooks.
 
   /* TODO: WRITE CODE HERE */
+  //set up random number generator?
+  //default_random_engine randGen;
+  //uniform_int_distribution<int> di(1000, 20000);
+
+  std::seed_seq seq(args.seeds.begin(), args.seeds.end());
+
+  cs340::random_generator engine(seq);
 
   // 3. Create an object of type cs340::simulation_parameters. Call it
   // params. Pass in as arguments (in this exact order) to the constructor:
@@ -59,6 +70,10 @@ int main(int argc, char* argv[])
   // args object.
 
   /* TODO: WRITE CODE HERE */
+  cs340::simulation_parameters params(args.generations, args.min_pool_size, args.threads)
+  {
+
+  }
 
   // 4. Create a matrix object by calling the function
   // cs340::create_random_matrix. Pass in the correct parameters
@@ -66,7 +81,8 @@ int main(int argc, char* argv[])
   // 30 for the time_max parameter.
 
   /* TODO: WRITE CODE HERE */
-
+  auto matrixObject = cs340::create_random_matrix(1000, 20000, 30, engine);
+  
   cout << "Pool\tResult\tTime (s)\n";
   for ( ;
     params.pool_size <= args.max_pool_size;
