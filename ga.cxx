@@ -40,10 +40,13 @@ namespace cs340
     {
       explicit schedule_compare(runtime_matrix const& m)
         : matrix_{m}
-      {
-        //if ()
+        {}
 
-      }
+        schedule_compare (schedule const& a, schedule const& b){
+            if(a.score(matrix_) > b.score(matrix_)){            //Return true if b is a better score than a.
+                return true;
+            }
+        }
 
       // Write a function call operator overload that takes in two
       // const lvalue-references to schedule objects. The operator should
@@ -51,8 +54,7 @@ namespace cs340
       // second schedule's.
       //
       // NOTE: This will be used in sorting contexts.
-
-      /* TODO: WRITE CODE HERE */
+        //***DONE***
 
     private:
       runtime_matrix const& matrix_;
@@ -122,11 +124,18 @@ namespace cs340
       // 1. Use a uniform_int_distribution to select a random point
       // in the range [0, c1.tasks() - 1].
 
-      /* TODO: WRITE CODE HERE */
+        std::uniform_int_distribution<size_t> distribution_(0, (c1.tasks() - 1));
+
+        /* TODO: WRITE CODE HERE */
 
       // 2. Copy every element from c2, starting at the crossover
       // point, to c1. This is why we took c1 in by-value: we are copying
       // its elements and modifying it, to create a new schedule.
+
+        while(auto c1It = (c1.begin() + distribution_) < c1.end && auto c2It = (c1.begin() + distribution_) < c2.end()){
+            c1It++ = c2It++;
+        }
+
 
       /* TODO: WRITE CODE HERE */
 
