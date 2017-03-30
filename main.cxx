@@ -32,11 +32,7 @@ int main(int argc, char* argv[])
   // TODO: The program options code has been provided to you. Notice
   //       how it simplifies processing command line arguments.
 
-  /* TODO: WRITE CODE HERE */
-  cs340::program_options args;
-  args = program_options::program_options(argc, argv[]);
-  //program_options::program_options(argc, argv[]);
-  //program_options(argc, argv[]);
+    cs340::program_options args{argc, argv};
 
   // 2. Set up the random number generator. Create an object of type
   // std::seed_seq. Pass in as parameters an iterator pointing to the
@@ -50,14 +46,8 @@ int main(int argc, char* argv[])
   // TODO: Read about std::seed_seq in the course textbooks.
   // TODO: Read about random numbers (e.g., <random>) in the course textbooks.
 
-  /* TODO: WRITE CODE HERE */
-  //set up random number generator?
-  //default_random_engine randGen;
-  //uniform_int_distribution<int> di(1000, 20000);
-
-  std::seed_seq seq(args.seeds.begin(), args.seeds.end());
-
-  cs340::random_generator engine(seq);
+    std::seed_seq seq{begin(args.seeds), end(args.seeds)};
+    cs340::random_generator engine{seq};
 
   // 3. Create an object of type cs340::simulation_parameters. Call it
   // params. Pass in as arguments (in this exact order) to the constructor:
@@ -68,20 +58,15 @@ int main(int argc, char* argv[])
   //
   // See the program_options.hxx for the correct member variables of your
   // args object.
-
-  /* TODO: WRITE CODE HERE */
+ 
   cs340::simulation_parameters params(args.generations, args.min_pool_size, args.threads)
-  {
-
-  }
 
   // 4. Create a matrix object by calling the function
   // cs340::create_random_matrix. Pass in the correct parameters
   // (see types.hxx and types.cxx) for the interface. Use the value
   // 30 for the time_max parameter.
 
-  /* TODO: WRITE CODE HERE */
-  auto matrixObject = cs340::create_random_matrix(1000, 20000, 30, engine);
+  auto random_matrix = cs340::create_random_matrix(args.tasks, args.machines, 30, engine);
   
   cout << "Pool\tResult\tTime (s)\n";
   for ( ;
@@ -106,7 +91,11 @@ int main(int argc, char* argv[])
     //       5a and 5c to determine the total elapsed time of the
     //       simulation.
 
-    /* TODO: WRITE CODE HERE */
+      auto cpu_time_before = std::chrono::high_resolution_clock::now();
+
+      auto result = cs340::run_simulation(random_matrix, params, engine);
+
+      auto cpu_time_after = std::chrono::high_resolution_clock::now();
 
     // 6. Output to standard out the following:
     //
@@ -120,8 +109,11 @@ int main(int argc, char* argv[])
     //
     // Each field output should be separated by a tab character.
     // The entire output should be flushed via std::endl.
+    
+      std::chrono::duration<double> dif = cpu_time_after - cpu_time_before;
 
-    /* TODO: WRITE CODE HERE */
+      std::cout << params.pool_size << '\t' << result.score << '\t'
+          << dif.count() << std::endl;
   }
 }
 
