@@ -503,11 +503,17 @@ namespace cs340
         // if this schedule is better than the current best one, assign the best one
         // to the rvalue-reference to the schedule (using std::move).
 
-        /* TODO: WRITE CODE HERE */
+        // Each winner is a std::future<schedule>
+        for (auto winner: future_winners) {
+            auto winner_schedule = std::move(winner.get());
+
+            // If winner_schedule.score(matrix) > best.score(matrix), update best
+            if (cs340::schedule_compare(winner_schedule, best, matrix))
+                best = std::move(winner_schedule);
+        }
 
         // 6. We now have the best schedule of the best schedules. Return it!
-
-        /* TODO: WRITE CODE HERE */
+        return best;
     }
 }
 
