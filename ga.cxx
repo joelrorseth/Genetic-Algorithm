@@ -391,7 +391,10 @@ namespace cs340
         // a std::runtime_error exception with the message
         // "Cannot run on less than 1 thread".
 
-        /* TODO: WRITE CODE HERE */
+        if (args.threads < 1) {
+            throw std::runtime_error("Cannot run on less than 1 thread");
+        }
+        
 
         // 2. If the number of threads is 1, then we will run the
         // simulation without any complex future stuff. First,
@@ -400,7 +403,14 @@ namespace cs340
         // of size args.pool_size. Then call the function run_simulation_n_times
         // with that gene pool and return the result of that function call.
 
-        /* TODO: WRITE CODE HERE */
+        if (agrs.threads == 1) {
+
+            // Should return a vector<schedule>
+            auto pool = populate_gene_pool(matric, args.pool_size, gen);
+
+            // Return schedule object
+            return run_simulation_n_times(matrix, pool, args.generations, gen);
+        }
 
         // Otherwise, we're running multithreaded code.
 
@@ -409,21 +419,23 @@ namespace cs340
         // to the problem and return the best solution. This vector of future schedule
         // objects will hold the best schedule from each thread.
 
-        /* TODO: WRITE CODE HERE */
+        std::vector<std::future<schedule>> future_winners;   
 
         // 4. Each thread will get its own random number generator, seeded
         // by the random number generator in this main thread. First create
         // a uniform_int_distribution of size_t's, that samples from the range
         // [0, 100]. We will generate seeds from it for each thread.
 
-        /* TODO: WRITE CODE HERE */
+        std::uniform_int_distribution<std::size_t> dist(0, 100);
 
         for (size_t i{}; i < args.threads; ++i)
         {
             // 4a. Now create a vector of size_t objects to store the seeds.
             // Populate the vector by sampling your distribution six times.
 
-            /* TODO: WRITE CODE HERE */
+            std::vector<std::size_t> seeds;
+            for (int i = 0; i < 6; ++i) 
+                seeds.push_back(dist(gen));
 
             // 4b. Now we push back into our vector of futures...
 
@@ -444,12 +456,12 @@ namespace cs340
                                 // 4b i. Now turn the vector of seeds into a std::seed_seq by using
                                 // std::seed_seq's iterator constructor.
 
-                                /* TODO: WRITE CODE HERE */
+                                std::seed_seq seq(seeds.begin(), seeds.end());
 
                                 // 4b ii. And then create a random_generator object for this thread.
                                 // Pass in your std::seed_seq object to the generator's constructor.
 
-                                /* TODO: WRITE CODE HERE */
+                                cs340::random_generator thread_gen{seq};
 
                                 // Some constants to help us determine the size of
                                 // this thread's pool.
@@ -467,12 +479,15 @@ namespace cs340
                                 // pool size to create. Pass in the random generator that you created
                                 // for this thread as the generator.
 
-                                /* TODO: WRITE CODE HERE */
+                                auto thread_pool = populate_gene_pool(matrix, pool_size, thread_gen);
 
                                 // 4b iv. Now call run_simulation_n_times with this thread's pool and
-                                // this thread's random generator. Return the result of run_simulation_n_times.
+                                // this thread's random generator. Return the result of 
+                                // run_simulation_n_times.
 
-                                /* TODO: WRITE CODE HERE */
+                                return run_simulation_n_times(
+                                        matrix, thread_pool, args.generations, thread_gen
+                                        );
                             }
                     )
             );
