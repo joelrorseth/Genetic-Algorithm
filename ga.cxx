@@ -346,16 +346,18 @@ namespace cs340
                     /* TODO: WRITE CODE HERE */
 
                     // 2f. End of your for-loop. You are now done performing crossover.
-                }
 
-                /* TODO: WRITE CODE HERE */
-            }   //endif crossover check
+                }   //endfor crossover
+
+            }   //endif crossover check     (3)
+
+
             // 3. End your if-statement guarding the crossover code.
-
-            /* TODO: WRITE CODE HERE */
 
             // 4. Crossover is complete. Now we do mutation. Start by generating
             // a random size_t from the mut_dist distribution. Call it num_mutations.
+
+            size_t num_mutations = mut_dist(gen);
 
             /* TODO: WRITE CODE HERE */
 
@@ -367,10 +369,14 @@ namespace cs340
                 // iterators are random access, find the corresponding solution
                 // by adding the sampled value to begin(gene_pool).
 
+                std::vector<schedule>::iterator mut_select = gene_pool.begin() + m_sel_dist(gen);
+
                 /* TODO: WRITE CODE HERE */
 
                 // 4b. Now that you have the iterator to the schedule to mutate,
                 // call the mutate function you wrote earlier!
+
+                auto new_schedule = mutate(matrix, mut_select, gen);
 
                 /* TODO: WRITE CODE HERE */
 
@@ -379,6 +385,9 @@ namespace cs340
                 // do the same with the mutated matrix. First call lower_bound.
                 // Store the resulting iterator in a variable called pos.
 
+                auto pos = std::lower_bound(gene_pool.begin(), gene_pool.end(), mut_select, schedule_compare());
+
+
                 /* TODO: WRITE CODE HERE */
 
                 // 4d. Instead of calling insert, use the algorithm std::rotate
@@ -386,6 +395,10 @@ namespace cs340
                 //
                 // HINT: You need to call std::rotate differently if pos is greater
                 // than your iterator pointing to the yet-to-be placed mutated schedule.
+                auto bck = gene_pool.begin();
+                std::rotate(gene_pool.begin(), pos, gene_pool.end());
+                gene_pool.push_back(newsched);
+                std::rotate(gene_pool.begin(), bck, gene_pool.end());
 
                 /* TODO: WRITE CODE HERE */
             }
