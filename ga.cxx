@@ -151,8 +151,8 @@ namespace cs340
             //   *) The randomly generated values will both require using gen.
 
             std::uniform_int_distribution<std::size_t> distribution_t (0, (c.tasks()  - 1)); 
-            std::uniform_int_distribution<std::size_t> distribution_m (0, (matrix.machines() - 1))
-            c.task_assignment(distribution_t, distribution_m);
+            std::uniform_int_distribution<std::size_t> distribution_m (0, (matrix.machines() - 1));
+            c.set_task_assignment(distribution_t(gen), distribution_m(gen));
         }
 
         // Run through a single generation of the genetic algorithm.
@@ -187,18 +187,12 @@ namespace cs340
 
             size_t x_pairs_count = x_pairs_dist(gen);
 
-            /* TODO: WRITE CODE HERE */
-
             // 2. We will only perform the crossover operations if
             // the number of pairs is greater than zero, and less than
             // the size of your gene pool. Write an if-statement to
             // reflect this condition.
 
             if (x_pairs_count < gene_pool.size() && x_pairs_count > 0) {
-
-
-
-                /* TODO: WRITE CODE HERE */
 
                 // 2a. We need to make space for the new schedules we will
                 // be generating. Create an iterator suitable to be passed into
@@ -217,8 +211,6 @@ namespace cs340
                 //   *) Finally erase the last N elements from the gene pool.
 
                 gene_pool.erase(gene_pool.end() - x_pairs_count, gene_pool.end());
-
-                /* TODO: WRITE CODE HERE */
 
                 // 2b. Each schedule has a chance of being selected for crossover
                 // directly proportional to its score. In order to efficiently
@@ -242,9 +234,11 @@ namespace cs340
                 std::vector<double> totals;
                 totals.reserve(gene_pool.size());
 
-                std::transform(gene_pool.begin(), gene_pool.end(), std::back_inserter(totals&), score());
-
-                /* TODO: WRITE CODE HERE */
+                std::transform(gene_pool.begin(), 
+				gene_pool.end(), 
+				std::back_inserter(totals), 
+				[&matrix](auto & sch) { sch.score(matrix); }
+		);
 
                 // 2c. Now that we have the scores in a new vector, compute the
                 // partial sum of that vector. In order to save space, make the
@@ -252,8 +246,6 @@ namespace cs340
                 // vector of scores.
 
                 std::partial_sum(totals.begin(), totals.end(), totals);
-
-                /* TODO: WRITE CODE HERE */
 
                 // 2d. Next we will be selecting x_pairs_count pairs to
                 // cross over.  Start by declaring a
@@ -263,20 +255,14 @@ namespace cs340
 
                 uniform_real_distribution<double> distributions_ (0, totals.back());
 
-                /* TODO: WRITE CODE HERE */
-
                 // 2e. Now write a for loop that will execute x_pairs_count times...
 
-                for(int i = 0; i < x_pairs_count; i++) {
-
-                    /* TODO: WRITE CODE HERE */
+                for(std::size_t i = 0; i < x_pairs_count; i++) {
 
                     // 2e i. Generate two random numbers from our range.
 
                     double rand1 = distributions_(gen);
                     double rand2 = distributions_(gen);
-
-                    /* TODO: WRITE CODE HERE */
 
                     // 2e ii. Using std::lower_bound, find the first value in the
                     // totals vector that is NOT LESS than the first random number
@@ -284,15 +270,11 @@ namespace cs340
 
                     auto val1 = std::lower_bound(totals.begin(), totals.end(), rand1);
 
-                    /* TODO: WRITE CODE HERE */
-
                     // 2e iii. Use std::distance to find the offset of the value
                     // found via lower_bound above. We will use this numeric offset
                     // to point into to gene_pool vector later...
 
                     auto offset1 = std::distance(totals.begin(), val1);
-
-                    /* TODO: WRITE CODE HERE */
 
                     // 2e iv. Perform the two above steps again. This time using the
                     // second random number you drew.
@@ -300,33 +282,26 @@ namespace cs340
                     auto val2 = std::lower_bound(totals.begin(), totals.end(), rand2);
                     auto offset2 = std::distance(totals.begin(), val2);
 
-
-                    /* TODO: WRITE CODE HERE */
-
                     // 2e v. Using the two offsets you calculated, find iterators into
                     // the gene pool corresponding to the random values you drew at the
                     // top of the loop.
 
-                    std::vector<schedule>::iterator1 = gene_pool.begin() + offset1;
-                    std::vector<schedule>::iterator2 = gene_pool.begin() + offset2;
-
-                    /* TODO: WRITE CODE HERE */
+                    std::vector<schedule>::iterator iterator1 = gene_pool.begin() + offset1;
+                    std::vector<schedule>::iterator iterator2 = gene_pool.begin() + offset2;
 
                     // 2e vi. Create a new schedule object by calling cross_over with
                     // the two schedules pointed to by your computed iterators.
 
-                    gene_pool.iterator1 = cross_over(iterator1, gene_pool.iterator2, gen);
-
-                    /* TODO: WRITE CODE HERE */
+					schedule new_schedule = cross_over(*iterator1, *iterator2, gen);
 
                     // 2e vii. We need to maintain our sorted invariant. Use std::lower_bound
                     // with an object of type schedule_compare as your custom comparision
                     // to probe the gene pool for the first schedule that is NOT GREATER
                     // than the one we just created via crossover.
 
-                    gene_pool.insert(std::lower_bound(gene_pool.begin(), gene_pool.end(), iterator1, schedule_compare()), iterator1);
-
-                    /* TODO: WRITE CODE HERE */
+					
+                    gene_pool.insert(std::lower_bound(gene_pool.begin(), gene_pool.end(), 
+							new_schedule, schedule_compare(matrix)), new_schedule);
 
                     // 2f. End of your for-loop. You are now done performing crossover.
 
@@ -342,8 +317,6 @@ namespace cs340
 
             size_t num_mutations = mut_dist(gen);
 
-            /* TODO: WRITE CODE HERE */
-
             uniform_int_distribution<size_t> m_sel_dist{0, gene_pool.size() - 1};
             for (size_t j{}; j < num_mutations; ++j)
             {
@@ -354,36 +327,28 @@ namespace cs340
 
                 std::vector<schedule>::iterator mut_select = gene_pool.begin() + m_sel_dist(gen);
 
-                /* TODO: WRITE CODE HERE */
-
                 // 4b. Now that you have the iterator to the schedule to mutate,
                 // call the mutate function you wrote earlier!
 
-                auto new_schedule = mutate(matrix, mut_select, gen);
-
-                /* TODO: WRITE CODE HERE */
+                mutate(matrix, *mut_select, gen);
 
                 // 4c. Similar to the code you wrote previously that computes the
                 // position in the gene pool to insert the crossed-over solution,
                 // do the same with the mutated matrix. First call lower_bound.
                 // Store the resulting iterator in a variable called pos.
 
-                auto pos = std::lower_bound(gene_pool.begin(), gene_pool.end(), mut_select, schedule_compare());
-
-
-                /* TODO: WRITE CODE HERE */
+                auto pos = std::lower_bound(gene_pool.begin(), gene_pool.end(), mut_select, schedule_compare(matrix));
 
                 // 4d. Instead of calling insert, use the algorithm std::rotate
                 // to change the position of the schedule you mutated.
                 //
                 // HINT: You need to call std::rotate differently if pos is greater
                 // than your iterator pointing to the yet-to-be placed mutated schedule.
+
                 auto bck = gene_pool.begin();
                 std::rotate(gene_pool.begin(), pos, gene_pool.end());
-                gene_pool.push_back(newsched);
+                gene_pool.push_back(*mut_select);
                 std::rotate(gene_pool.begin(), bck, gene_pool.end());
-
-                /* TODO: WRITE CODE HERE */
             }
         }
 
@@ -441,10 +406,10 @@ namespace cs340
         // of size args.pool_size. Then call the function run_simulation_n_times
         // with that gene pool and return the result of that function call.
 
-        if (agrs.threads == 1) {
+        if (args.threads == 1) {
 
             // Should return a vector<schedule>
-            auto pool = populate_gene_pool(matric, args.pool_size, gen);
+            auto pool = populate_gene_pool(matrix, args.pool_size, gen);
 
             // Return schedule object
             return run_simulation_n_times(matrix, pool, args.generations, gen);
@@ -517,15 +482,15 @@ namespace cs340
                                 // pool size to create. Pass in the random generator that you created
                                 // for this thread as the generator.
 
-                                auto thread_pool = populate_gene_pool(matrix, pool_size, thread_gen);
+                                std::vector<schedule> thread_pool = populate_gene_pool(matrix, pool_size, thread_gen);
 
                                 // 4b iv. Now call run_simulation_n_times with this thread's pool and
                                 // this thread's random generator. Return the result of 
                                 // run_simulation_n_times.
 
-                                return run_simulation_n_times(
-                                        matrix, thread_pool, args.generations, thread_gen
-                                        );
+                                auto result = run_simulation_n_times(
+                                        matrix, thread_pool, args.generations, thread_gen);
+								return result;
                             }
                     )
             );
@@ -542,12 +507,15 @@ namespace cs340
         // to the rvalue-reference to the schedule (using std::move).
 
         // Each winner is a std::future<schedule>
-        for (auto winner: future_winners) {
-            auto winner_schedule = std::move(winner.get());
+        for (auto & winner : future_winners) {
+            schedule winner_schedule = std::move(winner.get());
 
             // If winner_schedule.score(matrix) > best.score(matrix), update best
-            if (cs340::schedule_compare(winner_schedule, best, matrix))
+			schedule_compare compare{matrix};
+		
+            if (compare(winner_schedule, best, matrix)) {
                 best = std::move(winner_schedule);
+			}	
         }
 
         // 6. We now have the best schedule of the best schedules. Return it!
