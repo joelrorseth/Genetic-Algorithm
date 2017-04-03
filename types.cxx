@@ -1,7 +1,3 @@
-//
-// Joel Rorseth
-//
-
 //------------------------------------------------------------------------------
 //
 // This file contains the definitions for the member functions of the types.
@@ -16,7 +12,6 @@
 #include <cmath>
 #include <iterator>
 #include <iostream>
-#include <TestStuff>
 
 using namespace std;
 
@@ -50,13 +45,13 @@ namespace cs340
   {
     // 1. Create an object of type runtime_matrix with t tasks and m machines.
     // Here, elements_ is initialized with size, so is t, m, tasks_, machines_
-	runtime_matrix matrix{t, m};	
+	cs340::runtime_matrix matrix{t, m};	
 
 
     // 2. Create a uniform_int_distribution that samples size_t's
     // from the range [0, time_max].
 
-	uniform_int_distribution<> dist{0,std::chrono::time_point::max};
+	uniform_int_distribution<std::size_t> dist{0,time_max};
 
     // 3. Write a nested for loop to fill the matrix with random
     // values. Use the distribution object (step 2) and the random 
@@ -67,10 +62,10 @@ namespace cs340
     //       Use two for loops (one nested inside the other) to
     //       populate these values.
 
-    // TODO: Properly access elements_ property of declared matrix object
-    for (int i=0; i < t; ++i) {
-        for (int j=0; j < m; ++j) {
-            elements_.push_back(RAND);
+    // Properly access elements_ property of declared matrix object
+    for (std::size_t i = 0; i < t; ++i) {
+        for (std::size_t j = 0; j < m; ++j) {
+            matrix(i, j) = dist(gen);
         }
     }
 
@@ -160,18 +155,18 @@ namespace cs340
         // There are task_ number of machines
         // machine_schedule contains <machine, task> pairs
 
-        total_runtime = std::accumulate(range.first, range.second, 0,
-            [&matrix](const std::size_t & a, const std::size_t & b) -> std::size_t {
+        std::size_t total_runtime_machine = std::accumulate(range.first, range.second, 0,
+            [&matrix](const std::size_t & a, const auto & b) -> std::size_t {
 
                 // Not sure if this is correct
-                return a + matrix(b.second, b.first);
+                return a + matrix(b.first, b.second);
         });
 
         // 7. Using std::max, update the total_runtime variable declared
         // outside of the loop.
         
-        // TODO: Not enough detail given, needs to be fixed
-        total_runtime = std::max(total_runtime, ______);
+        // Not enough detail given, needs to be fixed
+        total_runtime = std::max(total_runtime, total_runtime_machine);
     }
 
 
@@ -185,7 +180,7 @@ namespace cs340
     // to recompute this value the next time we need it.
 
     cached_score_ = 1 / (total_runtime + 1) * 1000;
-
+	has_cache_ = true;
 
     // 9. Finally, return the cached score you computed.
     return cached_score_;
