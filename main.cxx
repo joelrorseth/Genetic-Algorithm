@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
   // TODO: Read about std::seed_seq in the course textbooks.
   // TODO: Read about random numbers (e.g., <random>) in the course textbooks.
 
-    std::seed_seq seq{begin(args.seeds), end(args.seeds)};
+    std::seed_seq seq(begin(args.seeds), end(args.seeds));
     cs340::random_generator engine{seq};
 
   // 3. Create an object of type cs340::simulation_parameters. Call it
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
   // See the program_options.hxx for the correct member variables of your
   // args object.
  
-  cs340::simulation_parameters params(args.generations, args.min_pool_size, args.threads)
+  cs340::simulation_parameters params{args.generations, args.min_pool_size, args.threads};
 
   // 4. Create a matrix object by calling the function
   // cs340::create_random_matrix. Pass in the correct parameters
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     
       std::chrono::duration<double> dif = cpu_time_after - cpu_time_before;
 
-      std::cout << params.pool_size << '\t' << result.score << '\t'
+      std::cout << params.pool_size << '\t' << result.score(random_matrix) << '\t'
           << dif.count() << std::endl;
   }
 }
