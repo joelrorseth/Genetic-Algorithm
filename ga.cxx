@@ -42,10 +42,6 @@ namespace cs340
                     : matrix_{m}
             {}
 
-            bool schedule_compare(schedule const& a, schedule const& b, runtime_matrix const& matrix){   //Dalyn
-                return (a.score(matrix) > b.score(matrix));
-            }
-
             // Write a function call operator overload that takes in two
             // const lvalue-references to schedule objects. The operator should
             // return true if the first schedule's score is greater than the
@@ -53,9 +49,11 @@ namespace cs340
             //
             // NOTE: This will be used in sorting contexts.
 
-            /* TODO: WRITE CODE HERE */
-
-        private:
+			bool operator() (schedule const& a, schedule const& b, runtime_matrix const& matrix) {
+                return (a.score(matrix) > b.score(matrix));
+            }
+        
+		private:
             runtime_matrix const& matrix_;
         };
 
@@ -66,18 +64,16 @@ namespace cs340
         {
             // 1. Create a std::vector of schedules, and use the .reserve()
             // member function to reserve space for pool_size schedules.
-            //***DONE***
 
-            std::vector<schedule> scheduleVector ();  //Dalyn
-            scheduleVector.reserve(pool_size);
+            std::vector<schedule> schedule_vector; 
+            schedule_vector.reserve(pool_size);
 
             // 2. Create a std::uniform_int_distribution to sample from. The
             // resulting objects should be of type size_t, and should fall
             // in the range [0, matrix.machines() - 1]. NOTE: This is an
             // INCLUSIVE range. <-- TAKE THIS INTO ACCOUNT!
-            //***DONE***
 
-            std::uniform_int_distribution<size_t> distribution_(0, (matrix.machines() - 1));    //Dalyn
+            std::uniform_int_distribution<std::size_t> distribution(0, (matrix.machines() - 1));
 
             // 3. Using std::generate_n, fill the vector you created
             // with randomly generated schedules. Use a lambda
@@ -87,27 +83,28 @@ namespace cs340
             // to fill the schedule with random data sampled from your
             // int distribution. (Remember to capture dist, gen, and matrix
             // by reference --not by value.)
-            //***DONE***
 
-            std::vector::iterator first = scheduleVector.begin();   //Dalyn
-            std::generate_n (first, pool_size,
-                             [&distribution_, &gen, &matrix]{
-                                 for (int i = 0; i < matrix.tasks(); i++){
-                                     schedule(matrix.tasks()).set_task_assignment(i, gen);
-                                 }
-                             });
+            std::vector<schedule>::iterator first = schedule_vector.begin();
+            std::generate_n (first, 
+				pool_size,
+                        	[&distribution, &gen, &matrix]{
+
+				schedule temp(matrix.tasks());
+                              	for (std::size_t i = 0; i < matrix.tasks(); i++) {
+
+                               		temp.set_task_assignment(i, distribution(gen));
+                             	}
+                         	});
 
             // 4. Sort your randomly generated pool of schedules. Use
             // std::stable_sort, passing in an object of type
             // schedule_compare as the custom comparison operator.
-            //***DONE***
 
-            std::stable_sort(scheduleVector.begin(), scheduleVector.end(), schedule_compare);   //Dalyn
+            std::stable_sort(schedule_vector.begin(), schedule_vector.end(), schedule_compare(matrix));   
 
             // 5. Return the pool of schedules.
-            //***DONE***
 
-            return scheduleVector;  //Dalyn
+            return schedule_vector;
         }
 
         // Crossing two schedules over involves selecting a random spot
@@ -121,31 +118,19 @@ namespace cs340
             // 1. Use a uniform_int_distribution to select a random point
             // in the range [0, c1.tasks() - 1].
 
-            std::uniform_int_distribution<size_t> distribution_ (0, (c1.tasks()  - 1)); //Dalyn
-
-            /* TODO: WRITE CODE HERE */
+            std::uniform_int_distribution<size_t> distribution(0, (c1.tasks()  - 1)); 
 
             // 2. Copy every element from c2, starting at the crossover
             // point, to c1. This is why we took c1 in by-value: we are copying
             // its elements and modifying it, to create a new schedule.
 
-            //std::vector_iterator<size_t> swap = (c1.begin + distribution_);
-            int n = distribution_(gen); //Dalyn
-            while(
-                    auto c1Swap = (c1.begin() + n) < c1.end()
-                    || auto (c2Swap = (c2.begin() + n) < c2.end())){
-                *c1Swap = *c2Swap;
-                c1Swap++;
-                c2Swap++;
-            }
-
-            /* TODO: WRITE CODE HERE */
+			auto crossover = distribution(gen);
+			for (; crossover < c1.tasks() && crossover < c2.tasks(); ++crossover) {
+				c1.set_task_assignment( crossover, c2.task_assignment(crossover) );
+			}
 
             // 3. Return the new, modified, c1.
-
-            return c1;  //Dalyn
-
-            /* TODO: WRITE CODE HERE */
+            return c1;
         }
 
         // Randomly change one of the task entries in the schedule.
@@ -165,11 +150,9 @@ namespace cs340
             //   *) You will need to call a member function of schedule to do this.
             //   *) The randomly generated values will both require using gen.
 
-            std::uniform_int_distribution<size_t> distributiont_ (0, (c.tasks()  - 1)); //Dalyn
-            std::uniform_int_distribution<size_t> distributionm_ (0, (matrix.machines() - 1))
-            c.task_assignment(distributiont_, distributionm_);
-
-            /* TODO: WRITE CODE HERE */
+            std::uniform_int_distribution<std::size_t> distribution_t (0, (c.tasks()  - 1)); 
+            std::uniform_int_distribution<std::size_t> distribution_m (0, (matrix.machines() - 1))
+            c.task_assignment(distribution_t, distribution_m);
         }
 
         // Run through a single generation of the genetic algorithm.
