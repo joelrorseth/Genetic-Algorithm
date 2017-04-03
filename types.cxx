@@ -156,7 +156,8 @@ namespace cs340
         // machine_schedule contains <machine, task> pairs
 
         std::size_t total_runtime_machine = std::accumulate(range.first, range.second, 0,
-            [&matrix](const std::size_t & a, const auto & b) -> std::size_t {
+            [&matrix](auto const & a, auto const & b) -> std::size_t {
+		// [&matrix](const std::size_t & a, auto const & b) -> std::size_t
 
                 // Not sure if this is correct
                 return a + matrix(b.first, b.second);
