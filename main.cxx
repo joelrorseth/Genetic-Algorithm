@@ -1,4 +1,3 @@
-//have you checked on the children
 //------------------------------------------------------------------------------
 //
 // This program runs a genetic algorithm for computing task/machine
@@ -16,7 +15,6 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
-
 //------------------------------------------------------------------------------
 
 int main(int argc, char* argv[])
@@ -66,7 +64,8 @@ int main(int argc, char* argv[])
   // (see types.hxx and types.cxx) for the interface. Use the value
   // 30 for the time_max parameter.
 
-  auto random_matrix = cs340::create_random_matrix(args.tasks, args.machines, 30, engine);
+  auto random_matrix = 
+  	cs340::create_random_matrix(args.tasks, args.machines, 30, engine);
   
   cout << "Pool\tResult\tTime (s)\n";
   for ( ;
@@ -94,7 +93,7 @@ int main(int argc, char* argv[])
       auto cpu_time_before = std::chrono::high_resolution_clock::now();
 
       auto result = cs340::run_simulation(random_matrix, params, engine);
-
+      
       auto cpu_time_after = std::chrono::high_resolution_clock::now();
 
     // 6. Output to standard out the following:
@@ -112,8 +111,8 @@ int main(int argc, char* argv[])
     
       std::chrono::duration<double> dif = cpu_time_after - cpu_time_before;
 
-      std::cout << params.pool_size << '\t' << result.score(random_matrix) << '\t'
-          << dif.count() << std::endl;
+      std::cout << params.pool_size << '\t' << result.score(random_matrix) 
+      	<< '\t' << dif.count() << std::endl;
   }
 }
 

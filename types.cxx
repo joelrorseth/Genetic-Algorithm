@@ -89,7 +89,7 @@ namespace cs340
     // REQUIREMENT: Do NOT use .size() to determine if data_ is empty!
 
     if ( tasks() == 0 )
-        return 0;
+    	return 0;
 
     // 2. Check if we already have a cached score. If so,
     // return the score we've cached. (See the class declaration
@@ -180,7 +180,7 @@ namespace cs340
     // Also, set the has_cache_ flag to true, so we avoid having
     // to recompute this value the next time we need it.
 
-    cached_score_ = 1 / (total_runtime + 1) * 1000;
+    cached_score_ = 1.0 / (total_runtime + 1) * 1000;
 	has_cache_ = true;
 
     // 9. Finally, return the cached score you computed.
