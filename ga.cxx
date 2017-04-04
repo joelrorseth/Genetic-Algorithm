@@ -52,7 +52,7 @@ namespace cs340
 			}
 
 			private:
-			runtime_matrix const& matrix_;
+			    runtime_matrix const& matrix_;
 		};
 
 		// Populate the gene pool with random values. Each machine in each
@@ -85,12 +85,14 @@ namespace cs340
 			// Create back_insert_iterator to allow generate_n to use push_back()
 			std::back_insert_iterator<std::vector<schedule>> first(schedule_vector);
 		
+            // Fill schedule_vector with values from lambda
 			std::generate_n (first, 
 					pool_size,
 					[&distribution, &gen, &matrix]() -> schedule {
 
 						schedule temp(matrix.tasks());
 
+                        // Generate random values using uniform_int_distribution
 						for (std::size_t i = 0; i < matrix.tasks(); i++) {
 							temp.set_task_assignment(i, distribution(gen));
 						}
@@ -101,6 +103,7 @@ namespace cs340
 			// std::stable_sort, passing in an object of type
 			// schedule_compare as the custom comparison operator.
 
+            // Sort the schedule_vector
 			schedule_compare comparison{matrix};
 			std::stable_sort(schedule_vector.begin(), schedule_vector.end(), comparison);   
 		
@@ -125,6 +128,7 @@ namespace cs340
 			// point, to c1. This is why we took c1 in by-value: we are copying
 			// its elements and modifying it, to create a new schedule.
 
+            // Perform crossover between c1 and c2 schedules
 			auto crossover = distribution(gen);
 			for (; crossover < c1.tasks() && crossover < c2.tasks(); ++crossover) {
 				c1.set_task_assignment( crossover, c2.task_assignment(crossover) );
@@ -151,6 +155,7 @@ namespace cs340
 			//   *) You will need to call a member function of schedule to do this.
 			//   *) The randomly generated values will both require using gen.
 
+            // Pick random tasks to mutate randomly
 			std::uniform_int_distribution<std::size_t> distribution_t (0, (c.tasks()  - 1)); 
 			std::uniform_int_distribution<std::size_t> distribution_m (0, (matrix.machines() - 1));
 			c.set_task_assignment(distribution_t(gen), distribution_m(gen));
@@ -210,7 +215,8 @@ namespace cs340
 				//      are random-access iterators as this simplifies adjusting
 				//      the iterator position.
 				//   *) Finally erase the last N elements from the gene pool.
-				
+		
+                // Use gene_pool size to erase only the last N elements
 				gene_pool.erase(gene_pool.end() - x_pairs_count, gene_pool.end());
 
 				// 2b. Each schedule has a chance of being selected for crossover
@@ -235,6 +241,7 @@ namespace cs340
 				std::vector<double> totals;
 				totals.reserve(gene_pool.size());
 				
+                // Perform transform to extract scores from every schedule
 				std::transform(begin(gene_pool), 
 						end(gene_pool), 
 						std::back_inserter(totals), 
@@ -258,6 +265,7 @@ namespace cs340
 
 				// 2e. Now write a for loop that will execute x_pairs_count times...
 
+                // For each pair to cross over...
 				for(std::size_t i = 0; i < x_pairs_count; i++) {
 
 					// 2e i. Generate two random numbers from our range.
@@ -300,6 +308,7 @@ namespace cs340
 					// to probe the gene pool for the first schedule that is NOT GREATER
 					// than the one we just created via crossover.
 
+                    // Insert into gene_pool
 					schedule_compare comparison{matrix};					
 					gene_pool.insert(std::lower_bound(gene_pool.begin(), gene_pool.end(), 
 								new_schedule, 
@@ -319,6 +328,7 @@ namespace cs340
 
 			std::size_t num_mutations = mut_dist(gen);
 			
+            // Determine distribution from gene_pool
 			uniform_int_distribution<std::size_t> m_sel_dist{0, gene_pool.size() - 1};
 			
 			for (size_t j{}; j < num_mutations; ++j)
@@ -340,6 +350,7 @@ namespace cs340
 				// do the same with the mutated matrix. First call lower_bound.
 				// Store the resulting iterator in a variable called pos.
 
+                // Find position to insert the solution to mutate
 				schedule_compare comparison{matrix};
 				auto pos = std::lower_bound(gene_pool.begin(), 
 						gene_pool.end(), 
@@ -351,7 +362,8 @@ namespace cs340
 				//
 				// HINT: You need to call std::rotate differently if pos is greater
 				// than your iterator pointing to the yet-to-be placed mutated schedule.
-			
+		
+                // Accomplish an insert using std::rotate()
 				if (pos > solution) 
 					std::rotate(pos, pos, solution);
 				else 
@@ -405,10 +417,9 @@ namespace cs340
 		// a std::runtime_error exception with the message
 		// "Cannot run on less than 1 thread".
 
-		if (args.threads < 1) {
+		if (args.threads < 1) 
 			throw std::runtime_error("Cannot run on less than 1 thread");
-		}
-
+		
 
 		// 2. If the number of threads is 1, then we will run the
 		// simulation without any complex future stuff. First,
@@ -501,6 +512,7 @@ namespace cs340
 						// this thread's random generator. Return the result of 
 						// run_simulation_n_times.
 
+                        // Run the simulation and return the schedule representing it
 						auto result = run_simulation_n_times(
 								matrix, 
 								thread_pool, 

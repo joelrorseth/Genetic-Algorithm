@@ -62,7 +62,7 @@ namespace cs340
     //       Use two for loops (one nested inside the other) to
     //       populate these values.
 
-    // Properly access elements_ property of declared matrix object
+    // Properly access elements_ property of matrix, insert random values
     for (std::size_t i = 0; i < t; ++i) {
         for (std::size_t j = 0; j < m; ++j) {
             matrix(i, j) = dist(gen);
@@ -150,23 +150,18 @@ namespace cs340
         //      of RT[i,j] in types.hxx to pass the correct values
         //      to m(i,j).
 
-
-        // data_ is a list of machines
-        // There are task_ number of machines
-        // machine_schedule contains <machine, task> pairs
-
+        // Compute total runtime for current machine
         std::size_t total_runtime_machine = std::accumulate(range.first, range.second, 0,
             [&matrix](auto const & a, auto const & b) -> std::size_t {
-		// [&matrix](const std::size_t & a, auto const & b) -> std::size_t
 
-                // Not sure if this is correct
+                // Add accumulated (a) to next (matrix)
                 return a + matrix(b.first, b.second);
         });
 
         // 7. Using std::max, update the total_runtime variable declared
         // outside of the loop.
         
-        // Not enough detail given, needs to be fixed
+        // Test if the computed runtime from this iteration is the new max
         total_runtime = std::max(total_runtime, total_runtime_machine);
     }
 
@@ -180,6 +175,8 @@ namespace cs340
     // Also, set the has_cache_ flag to true, so we avoid having
     // to recompute this value the next time we need it.
 
+    // Calculate cached score
+    // NOTE: Must use float (1.0) to force implicit conversion
     cached_score_ = 1.0 / (total_runtime + 1) * 1000;
 	has_cache_ = true;
 

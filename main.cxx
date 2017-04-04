@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
   // TODO: Read about std::seed_seq in the course textbooks.
   // TODO: Read about random numbers (e.g., <random>) in the course textbooks.
 
+    // Create random generator
     std::seed_seq seq(begin(args.seeds), end(args.seeds));
     cs340::random_generator engine{seq};
 
@@ -64,6 +65,7 @@ int main(int argc, char* argv[])
   // (see types.hxx and types.cxx) for the interface. Use the value
   // 30 for the time_max parameter.
 
+  // Create random matrix using program options
   auto random_matrix = 
   	cs340::create_random_matrix(args.tasks, args.machines, 30, engine);
   
@@ -92,6 +94,7 @@ int main(int argc, char* argv[])
 
       auto cpu_time_before = std::chrono::high_resolution_clock::now();
 
+      // Get resulting schedule object from the run_simulation() function
       auto result = cs340::run_simulation(random_matrix, params, engine);
       
       auto cpu_time_after = std::chrono::high_resolution_clock::now();
@@ -111,6 +114,7 @@ int main(int argc, char* argv[])
     
       std::chrono::duration<double> dif = cpu_time_after - cpu_time_before;
 
+      // Display information about the resulting schedule object, time stats
       std::cout << params.pool_size << '\t' << result.score(random_matrix) 
       	<< '\t' << dif.count() << std::endl;
   }
